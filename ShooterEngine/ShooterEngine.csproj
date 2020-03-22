@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9C6BEC11-F7CA-42E8-81FA-88724B9553BA}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ShooterEngine</RootNamespace>
+    <AssemblyName>ShooterEngine</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MonoGame.Framework, Version=3.6.0.1625, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\MonoGame\v3.0\Assemblies\DesktopGL\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AI\PathFinder.cs" />
+    <Compile Include="AI\PathFinderNode.cs" />
+    <Compile Include="AI\PriorityQueue.cs" />
+    <Compile Include="AI\StateInfo.cs" />
+    <Compile Include="AI\StateMachine.cs" />
+    <Compile Include="AI\SteeringBehavior.cs" />
+    <Compile Include="Animation\Animation.cs" />
+    <Compile Include="Animation\CharacterDefinition.cs" />
+    <Compile Include="Animation\KeyFrame.cs" />
+    <Compile Include="Animation\ScriptLine.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Entities\Actor.cs" />
+    <Compile Include="Entities\ActorCollection.cs" />
+    <Compile Include="Entities\BaseEntity.cs" />
+    <Compile Include="Entities\Bullet.cs" />
+    <Compile Include="Entities\Door.cs" />
+    <Compile Include="Entities\Script.cs" />
+    <Compile Include="Entities\Secret.cs" />
+    <Compile Include="Enums\ActorType.cs" />
+    <Compile Include="Enums\BehaviorType.cs" />
+    <Compile Include="Enums\Commands.cs" />
+    <Compile Include="Enums\DecelerationType.cs" />
+    <Compile Include="Enums\Difficulty.cs" />
+    <Compile Include="Enums\DoorType.cs" />
+    <Compile Include="Enums\EnemyType.cs" />
+    <Compile Include="Enums\Orientation.cs" />
+    <Compile Include="Enums\ScreenState.cs" />
+    <Compile Include="Enums\Weapons.cs" />
+    <Compile Include="EpisodeSystem\Episode.cs" />
+    <Compile Include="EpisodeSystem\EpisodeManager.cs" />
+    <Compile Include="EpisodeSystem\Level.cs" />
+    <Compile Include="GameObject.cs" />
+    <Compile Include="GameObjects\Camera.cs" />
+    <Compile Include="GameObjects\DoorSlice.cs" />
+    <Compile Include="GameObjects\Map.cs" />
+    <Compile Include="GameObjects\WallSlice.cs" />
+    <Compile Include="Graphics\Renderer.cs" />
+    <Compile Include="HelperObjects\XnaStringDictionary.cs" />
+    <Compile Include="Math\MathUtils.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sound\SoundManager.cs" />
+    <Compile Include="SpriteSheet.cs" />
+    <Compile Include="TypeReaders\EpisodeManagerTypeReader.cs" />
+    <Compile Include="TypeReaders\EpisodeTypeReader.cs" />
+    <Compile Include="TypeReaders\GameObjectTypeReader.cs" />
+    <Compile Include="TypeReaders\LevelTypeReader.cs" />
+    <Compile Include="TypeReaders\MapTypeReader.cs" />
+    <Compile Include="TypeReaders\SpriteSheetTypeReader.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
