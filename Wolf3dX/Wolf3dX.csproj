@@ -9,7 +9,7 @@
     <ProjectGuid>{9EECBA58-D1C7-4DBB-A53C-3039F0D9AB02}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WW2Shooter</RootNamespace>
+    <RootNamespace>Wolf3dX</RootNamespace>
     <AssemblyName>Wolf3dX</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>

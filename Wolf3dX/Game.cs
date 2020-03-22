@@ -41,7 +41,7 @@ using Wolf3d.StateManagement;
 #endregion
 
 
-namespace Wolf3d
+namespace Wolf3dX
 {
     /// <summary>
     /// Wolfenstein 3DX, entry point

@@ -1,7 +1,6 @@
 ﻿using System;
-using Wolf3d;
 
-namespace WW2Soldier
+namespace Wolf3dX
 {
     /// <summary>
     /// The main class.
