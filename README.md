@@ -12,6 +12,10 @@ Open source Monogame implementation of Wolfestein 3d. It does requiere to have g
     OpenGL 3.0
     SDL2 
 	
+# Screenshots
+
+![Screenshot](image1.png)
+	
 ## Legal
 
 All content and media belongs to Id Software.
