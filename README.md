@@ -1,5 +1,5 @@
 # Wolf3dX
-Open source Monogame implementation of Wolfestein 3d.
+Open source Monogame implementation of Wolfestein 3d. It does requiere to have game files but can work with Shareware version.
 
 ## Prerequisites
 
@@ -11,6 +11,10 @@ Open source Monogame implementation of Wolfestein 3d.
     -Linux
     OpenGL 3.0
     SDL2 
+	
+## Legal
+
+All content and media belongs to Id Software.
 
 ## License
 
