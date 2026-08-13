@@ -14,7 +14,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Net;
+
 using Microsoft.Xna.Framework.Media;
 using Nexxt.Engine.Graphics.RayCast;
 using Nexxt.Engine.GameObjects;
@@ -25,6 +25,7 @@ using Nexxt.Common.Enums;
 using Wolf3d.Helpers;
 using Wolf3d.Entities;
 using Nexxt.Engine.Entities.Actors;
+using Wolf3d.Entities.Enemies;
 #endregion
 
 namespace Wolf3d.StateManagement
@@ -34,11 +35,9 @@ namespace Wolf3d.StateManagement
     /// </summary>
     class GameplayScreen : GameScreen
     {
-        #region Fields
-
-        NetworkSession networkSession;
-
         ContentManager content;
+        
+         
         SpriteFont gameFont;
 
         //our map
@@ -80,7 +79,7 @@ namespace Wolf3d.StateManagement
         //the map
         RealTimeMap realtimeMap;
 
-        #endregion
+
 
         #region Properties
 
@@ -97,16 +96,9 @@ namespace Wolf3d.StateManagement
         {
             get
             {
-                if (networkSession == null)
-                {
-                    // Pause behavior for single player games.
+                 // Pause behavior for single player games.
                     return base.IsActive;
-                }
-                else
-                {
-                    // Pause behavior for networked games.
-                    return !IsExiting;
-                }
+                
             }
         }
 
@@ -120,9 +112,9 @@ namespace Wolf3d.StateManagement
         /// <summary>
         /// Constructor.
         /// </summary>
-        public GameplayScreen(NetworkSession networkSession)
+        public GameplayScreen()
         {
-            this.networkSession = networkSession;
+            
             camera = new Camera();
             player = new Player(map, camera);
             hud = new Hud();
@@ -160,7 +152,7 @@ namespace Wolf3d.StateManagement
             //realtimeMap = new RealTimeMap(ScreenManager.Game, camera, map);
             //this.ScreenManager.Game.Components.Add(realtimeMap);
 
-            //map.Actors.LoadContent(content);
+            map.Actors.LoadContent(content);
 
 
             //Once the map object is loaded get the level's soundtrack stored of course in the map file
@@ -191,6 +183,7 @@ namespace Wolf3d.StateManagement
 
             player.map = map;
 
+            //Enemy.CreateEnemiesTemporal(map);
             // once the load has finished, we use ResetElapsedTime to tell the game's
             // timing mechanism that we have just finished a very long frame, and that
             // it should not try to catch up.
@@ -275,15 +268,6 @@ namespace Wolf3d.StateManagement
 
 
 
-            // If we are in a network game, check if we should return to the lobby.
-            if ((networkSession != null) && !IsExiting)
-            {
-                if (networkSession.SessionState == NetworkSessionState.Lobby)
-                {
-                    LoadingScreen.Load(ScreenManager, false, null,
-                                       new LobbyScreen(networkSession));
-                }
-            }
         }
         /// <summary>
         /// Lets the game respond to player input. Unlike the Update method,
@@ -299,16 +283,7 @@ namespace Wolf3d.StateManagement
                 // In single player games, handle input for the controlling player.
                 HandlePlayerInput(input, ControllingPlayer.Value);
             }
-            else if (networkSession != null)
-            {
-                // In network game modes, handle input for all the
-                // local players who are participating in the session.
-                foreach (LocalNetworkGamer gamer in networkSession.LocalGamers)
-                {
-                    if (!HandlePlayerInput(input, gamer.SignedInGamer.PlayerIndex))
-                        break;
-                }
-            }
+           
         }
         /// <summary>
         /// Handles input for the specified player. In local game modes, this is called
@@ -337,7 +312,7 @@ namespace Wolf3d.StateManagement
             if (input.IsPauseGame(playerIndex))
             {
                 SoundManager.StopMusic();
-                ScreenManager.AddScreen(new PauseMenuScreen(networkSession), playerIndex);
+                ScreenManager.AddScreen(new PauseMenuScreen(), playerIndex);
                 return false;
             }
             else if (gamePadDisconnected)
@@ -441,16 +416,9 @@ namespace Wolf3d.StateManagement
             hud.Draw(spriteBatch, viewport, gameTime, player.currentWeaponTexture);
 
 
-            spriteBatch.DrawString(gameFont, player.CurrentHitPoints.ToString(), new Vector2(0, 600), Color.White);
+            spriteBatch.DrawString(gameFont, player.CurrentHitPoints.ToString(), new Vector2(400, 500), Color.White);
 #if DEBUG
 
-            // if we are on a network session write the number of players (debug only)
-            if (networkSession != null)
-            {
-                string message = "Players: " + networkSession.AllGamers.Count;
-                Vector2 messagePosition = new Vector2(30, 80);
-                spriteBatch.DrawString(gameFont, message, messagePosition, Color.White);
-            }
 #endif
 
             spriteBatch.End();

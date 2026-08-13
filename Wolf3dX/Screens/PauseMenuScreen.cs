@@ -9,7 +9,7 @@
 
 #region Using Statements
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Net;
+
 using Microsoft.Xna.Framework.Media;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -29,7 +29,6 @@ namespace Wolf3d.StateManagement
     {
         #region Fields
 
-        NetworkSession networkSession;
         ContentManager content;
         Texture2D pauseMenuTexture;
         #endregion
@@ -40,10 +39,10 @@ namespace Wolf3d.StateManagement
         /// <summary>
         /// Constructor.
         /// </summary>
-        public PauseMenuScreen(NetworkSession networkSession)
+        public PauseMenuScreen()
             : base("")
         {
-            this.networkSession = networkSession;
+
 
             // Flag that there is no need for the game to transition
             // off when the pause menu is on top of it.
@@ -54,31 +53,11 @@ namespace Wolf3d.StateManagement
             resumeGameMenuEntry.Selected += ResumeGameMenuEntry_Selected;
             MenuEntries.Add(resumeGameMenuEntry);
 
-            if (networkSession == null)
-            {
-                // If this is a single player game, add the Quit menu entry.
-                MenuEntry quitGameMenuEntry = new MenuEntry("Quit Game");
-                quitGameMenuEntry.Selected += QuitGameMenuEntrySelected;
-                MenuEntries.Add(quitGameMenuEntry);
-            }
-            else
-            {
-                // If we are hosting a network game, add the Return to Lobby menu entry.
-                if (networkSession.IsHost)
-                {
-                    MenuEntry lobbyMenuEntry = new MenuEntry("Return to Loby");
-                    lobbyMenuEntry.Selected += ReturnToLobbyMenuEntrySelected;
-                    MenuEntries.Add(lobbyMenuEntry);
-                }
+   
 
-                // Add the End/Leave Session menu entry.
-                string leaveEntryText = networkSession.IsHost ? "End Session" :
-                                                                "Leave Session";
-
-                MenuEntry leaveSessionMenuEntry = new MenuEntry(leaveEntryText);
-                leaveSessionMenuEntry.Selected += LeaveSessionMenuEntrySelected;
+                MenuEntry leaveSessionMenuEntry = new MenuEntry("Leave");
                 MenuEntries.Add(leaveSessionMenuEntry);
-            }
+            
         }
 
         private void ResumeGameMenuEntry_Selected(object sender, PlayerIndexEventArgs e)
@@ -118,25 +97,7 @@ namespace Wolf3d.StateManagement
         }
 
 
-        /// <summary>
-        /// Event handler for when the Return to Lobby menu entry is selected.
-        /// </summary>
-        void ReturnToLobbyMenuEntrySelected(object sender, PlayerIndexEventArgs e)
-        {
-            if (networkSession.SessionState == NetworkSessionState.Playing)
-            {
-                networkSession.EndGame();
-            }
-        }
 
-
-        /// <summary>
-        /// Event handler for when the End/Leave Session menu entry is selected.
-        /// </summary>
-        void LeaveSessionMenuEntrySelected(object sender, PlayerIndexEventArgs e)
-        {
-            NetworkSessionComponent.LeaveSession(ScreenManager, e.PlayerIndex);
-        }
 
 
         #endregion

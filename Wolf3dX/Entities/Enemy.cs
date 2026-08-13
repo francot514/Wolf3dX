@@ -11,10 +11,11 @@ using Nexxt.Engine.GameObjects;
 using Wolf3d.StateManagement;
 using Nexxt.Common;
 using Nexxt.Engine.Animations;
+using Nexxt.Engine.Entities.Actors;
 
 namespace Wolf3d.Entities.Enemies
 {
-    public class Enemy : BaseEntity
+    public class Enemy : Actor
     {
         #region Constants
         // Possible States
@@ -23,6 +24,8 @@ namespace Wolf3d.Entities.Enemies
         const string SEARCHING_PLAYER = "SEARCHING_PLAYER";
         const string ATTACKING = "ATTACKING";
         const string KILLED = "KILLED";
+        const string DYING = "DYING";
+
 
         //start and end texture numbers associated to all the enemies
         const int START_TEXTURE = 50;
@@ -61,7 +64,7 @@ namespace Wolf3d.Entities.Enemies
         #endregion
 
         #region Constructor
-        public Enemy(Vector2 _position, CharacterDefinition newCharDef, int newID)
+        public Enemy(Map _map, Vector2 _position, CharacterDefinition newCharDef, int newID) : base(_map, new Vector2(0, 0), new CharacterDefinition(), 0)
         {
             entityStateMachine = new StateMachine();
 
@@ -156,6 +159,10 @@ namespace Wolf3d.Entities.Enemies
                 }
             }
         }
+
+
+
+
 
         public void SetFrame(int newFrame)
         {
@@ -303,7 +310,7 @@ namespace Wolf3d.Entities.Enemies
         {
             CharacterDefinition definition = new CharacterDefinition("", ActorType.Guard);
             
-            Enemy soldier = new Enemy(new Vector2(61.5f, 39.5f), definition, 1);
+            Enemy soldier = new Enemy(map, new Vector2(61.5f, 39.5f), definition, 1);
             soldier.IsActive = true;
             soldier.IsCollectable = false;
             soldier.IsMovable = false;
@@ -311,7 +318,7 @@ namespace Wolf3d.Entities.Enemies
             soldier.Direction = new Vector2(1, 0);
             map.ObjectDatabase.Add(soldier);
 
-            Enemy soldier2 = new Enemy(new Vector2(61.5f, 29.5f), definition, 1);
+            Enemy soldier2 = new Enemy(map, new Vector2(61.5f, 29.5f), definition, 1);
             soldier2.IsActive = true;
             soldier2.IsCollectable = false;
             soldier2.IsMovable = false;

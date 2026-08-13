@@ -13,7 +13,7 @@ using System.Threading;
 using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Net;
+
 using Microsoft.Xna.Framework.Content;   
 #endregion
 
@@ -46,7 +46,6 @@ namespace Wolf3d.StateManagement
         EventWaitHandle backgroundThreadExit;
 
         GraphicsDevice graphicsDevice;
-        NetworkSession networkSession;
         IMessageDisplay messageDisplay;
 
         GameTime loadStartTime;
@@ -86,8 +85,7 @@ namespace Wolf3d.StateManagement
                 // Look up some services that will be used by the background thread.
                 IServiceProvider services = screenManager.Game.Services;
 
-                networkSession = (NetworkSession)services.GetService(
-                                                            typeof(NetworkSession));
+                
 
                 messageDisplay = (IMessageDisplay)services.GetService(
                                                             typeof(IMessageDisplay));
@@ -259,7 +257,7 @@ namespace Wolf3d.StateManagement
             while (!backgroundThreadExit.WaitOne(1000 / 30, false))
             {
                 GameTime gameTime = GetGameTime(ref lastTime);
-                UpdateNetworkSession();
+                
             }
         }
         /// <summary>
@@ -279,29 +277,7 @@ namespace Wolf3d.StateManagement
                                false);
         }
 
-        /// <summary>
-        /// Updates the network session from the background worker thread, to avoid
-        /// disconnecting due to network timeouts even if loading takes a long time.
-        /// </summary>
-        void UpdateNetworkSession()
-        {
-            if ((networkSession == null) ||
-                (networkSession.SessionState == NetworkSessionState.Ended))
-                return;
-            
-            try
-            {
-                networkSession.Update();
-            }
-            catch
-            {
-                // If anything went wrong, we don't have a good way to report that
-                // error while running on a background thread. Setting the session to
-                // null will stop us from updating it, so the main game can deal with
-                // the problem later on.
-                networkSession = null;
-            }
-        }
-        #endregion
     }
+
 }
+#endregion

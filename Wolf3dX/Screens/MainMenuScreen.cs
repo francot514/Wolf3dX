@@ -9,7 +9,7 @@
 
 #region Using Statements
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Net;
+
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
@@ -79,7 +79,7 @@ namespace Wolf3d.StateManagement
         void SinglePlayerMenuEntrySelected(object sender, PlayerIndexEventArgs e)
         {
             LoadingScreen.Load(ScreenManager, true, e.PlayerIndex,
-                               new GameplayScreen(null));
+                               new GameplayScreen());
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Wolf3d.StateManagement
         /// </summary>
         void LiveMenuEntrySelected(object sender, PlayerIndexEventArgs e)
         {
-            CreateOrFindSession(NetworkSessionType.PlayerMatch, e.PlayerIndex);
+            
         }
 
 
@@ -96,30 +96,7 @@ namespace Wolf3d.StateManagement
         /// </summary>
         void SystemLinkMenuEntrySelected(object sender, PlayerIndexEventArgs e)
         {
-            CreateOrFindSession(NetworkSessionType.SystemLink, e.PlayerIndex);
-        }
-
-
-        /// <summary>
-        /// Helper method shared by the Live and System Link menu event handlers.
-        /// </summary>
-        void CreateOrFindSession(NetworkSessionType sessionType,
-                                 PlayerIndex playerIndex)
-        {
-            // First, we need to make sure a suitable gamer profile is signed in.
-            ProfileSignInScreen profileSignIn = new ProfileSignInScreen(sessionType);
-
-            // Hook up an event so once the ProfileSignInScreen is happy,
-            // it will activate the CreateOrFindSessionScreen.
-            profileSignIn.ProfileSignedIn += delegate
-            {
-                GameScreen createOrFind = new CreateOrFindSessionScreen(sessionType);
-
-                ScreenManager.AddScreen(createOrFind, playerIndex);
-            };
-
-            // Activate the ProfileSignInScreen.
-            ScreenManager.AddScreen(profileSignIn, playerIndex);
+            
         }
 
 

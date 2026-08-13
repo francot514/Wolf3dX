@@ -51,6 +51,7 @@ namespace Wolf3d.Entities
         const string IDLE = "IDLE";
         const string SHOOTING = "SHOOTING";
         const string CHANGE_WEAPON = "CHANGE_WEAPON";
+        const string DYING = "DYING";
 
         //Frames per second for weapon animations
         const int ANIMATION_FRAMES_PER_SECOND = 8;
@@ -75,7 +76,7 @@ namespace Wolf3d.Entities
         KeyboardState currentKeyBoardState;
         // shooting timer used to sync the sound effect
         float wtime;
-
+        bool isHit;
         double timeToCreateBullet = 0;
 
         // Textures used to render the current weapon in the HUD 
@@ -103,11 +104,11 @@ namespace Wolf3d.Entities
             entityStateMachine.AddState(IDLE, idleBegin, idleTick, null);
             // Shooting doesn't need Begin or End.  
             entityStateMachine.AddState(SHOOTING, null, shootingTick, null);
-
             entityStateMachine.AddState(CHANGE_WEAPON, changeWeaponBegin, changeWeaponTick, null);
+            entityStateMachine.AddState(DYING, null, DyingTick, null);
 
             // current weapon is hardcoded for now
-            // TODO: this should me managed by an inventory system.
+            // TODO: this should be managed by an inventory system.
             currentWeapon = Weapons.Pistol;
         }
         #endregion
@@ -143,6 +144,30 @@ namespace Wolf3d.Entities
             if (changeWeapon)
             {
                 entityStateMachine.State = CHANGE_WEAPON;
+            }
+
+            if (map.Bullets.Count > 0)
+                for (int i = 0; i < map.Bullets.Count; i++)
+                {
+
+                    Bullet bullet = map.Bullets[i];
+                    if (bullet.collisionWithMainPlayer)
+                    {
+                        isHit = true;
+                        DoCollision(bullet);
+
+                    }
+                }
+
+
+        }
+
+        void DyingTick()
+        {
+            if (!IsDying)
+            {
+                SetAnim("falling");
+                IsDying = true;
             }
         }
 
@@ -195,6 +220,19 @@ namespace Wolf3d.Entities
             }
         }
 
+        public void Collision(Bullet bullet)
+        {
+            //reduce hit points
+            int points = this.CalculateHitPoints(bullet, bullet.HitPoints);
+            HitPoints -= points;
+
+            if (HitPoints <= 0)
+            {
+                // time to die
+                entityStateMachine.State = DYING;
+            }
+
+        }
 
         void changeWeaponBegin()
         {
