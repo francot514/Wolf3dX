@@ -99,7 +99,7 @@ namespace Nexxt.Engine.Entities.Actors
 
         public String Team = "NAZIS";
 
-        private double timeToCreateBullet;
+        public double timeToCreateBullet;
 
         public double TimeElapsed = 0;
 
@@ -325,6 +325,95 @@ namespace Nexxt.Engine.Entities.Actors
 
         }
 
+
+        /// <summary>
+        /// Do collision between the actor and the bullet
+        /// </summary>
+        /// <param name="bullet"></param>
+        public void DoCollision(Bullet bullet)
+        {
+            //reduce hit points
+            int points = CalculateHitPoints(bullet, bullet.HitPoints);
+            HitPoints -= points;
+
+            if (HitPoints <= 0)
+            {
+                // time to die
+                entityStateMachine.State = DYING;
+            }
+            else
+            {
+                PainTime = 0;
+                if (HasPain)
+                {
+                    //suffer pain state
+                    entityStateMachine.State = SUFFERING_PAIN;
+                }
+                else
+                {
+                    //if is patrolling or idle start chasing the player
+                    if (entityStateMachine.State == PATROLLING || entityStateMachine.State == IDLE)
+                        entityStateMachine.State = CHASING_PLAYER;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calculate the hit points to subtract depending on the actor´s state and distance traveled by the bullet
+        /// </summary>
+        /// <param name="bullet"></param>
+        /// <param name="pointsOriginal"></param>
+        /// <returns></returns>
+        public int CalculateHitPoints(Bullet bullet, int pointsOriginal)
+        {
+            //compute the distance traveled by the bullet
+            float distanceTraveled = (bullet.OriginalPosition - bullet.Position).Length();
+            float distanceTraveledFactor = 0f;
+            if (distanceTraveled <= 2)
+            {
+                distanceTraveledFactor = 1f;
+            }
+            else if (distanceTraveled > 2 && distanceTraveled <= 6)
+            {
+                distanceTraveledFactor = 0.8f;
+            }
+            else
+            {
+                distanceTraveledFactor = 0.7f;
+            }
+
+            ////compute the distance to the center of the actor
+            //float distanceToCenter = (Position - bullet.Position).Length();
+            //float distanceToCenterFactor = 0f;
+            //if (distanceToCenter <= (BoundingRadius / 2))
+            //{
+            //    distanceToCenterFactor = 1;
+            //}
+            //else
+            //{
+            //    distanceToCenterFactor = 0.8f;
+            //}
+
+            //compute the factor depending on the actor's state
+            float actorStateFactor = 0f;
+            if (entityStateMachine.State == IDLE)
+            {
+                actorStateFactor = 1.25f;
+            }
+            else if (entityStateMachine.State == PATROLLING)
+            {
+                actorStateFactor = 1.10f;
+            }
+            else
+            {
+                actorStateFactor = 1f;
+            }
+
+            //compute points to rest to the actor's hitpoints
+            pointsOriginal = (int)((float)pointsOriginal * actorStateFactor * distanceTraveledFactor);
+            return pointsOriginal;
+        }
+
         /// <summary>
         /// Check if a door is in the path. If the door exists, and it is close enough to the actor, open the door.
         /// </summary>
@@ -369,11 +458,26 @@ namespace Nexxt.Engine.Entities.Actors
             return waitingForDoor;
         }
 
+        public void CreateBullets(GameTime gameTime)
+        {
+            timeToCreateBullet += gameTime.ElapsedGameTime.TotalSeconds;
+            //reload time to every 0.5 seconds
+            if (timeToCreateBullet > 0.5)
+            {
+                Bullet bullet = new Bullet(Map, WeaponType, Position, Direction, this);
+                bullet.IsActive = true;
+                Map.Bullets.Add(bullet);
+
+                timeToCreateBullet = 0;
+            }
+        }
+
+
         void AttackingTick()
         {
             SetAnim("attack");
 
-            CreateBullets();
+            CreateBullets(GameTime);
 
             float distanceToTarget = CalculateDistanceToTarget(Target);
 
@@ -730,110 +834,11 @@ namespace Nexxt.Engine.Entities.Actors
                 entityStateMachine.State = CHASING_PLAYER;
         }
 
-        /// <summary>
-        /// Do collision between the actor and the bullet
-        /// </summary>
-        /// <param name="bullet"></param>
-        public void DoCollision(Bullet bullet)
-        {
-            //reduce hit points
-            int points = CalculateHitPoints(bullet, bullet.HitPoints);
-            HitPoints -= points;
-
-            if (HitPoints <= 0)
-            {
-                // time to die
-                entityStateMachine.State = DYING;
-            }
-            else
-            {
-                PainTime = 0;
-                if (HasPain)
-                {
-                    //suffer pain state
-                    entityStateMachine.State = SUFFERING_PAIN;
-                }
-                else
-                {
-                    //if is patrolling or idle start chasing the player
-                    if (entityStateMachine.State == PATROLLING || entityStateMachine.State == IDLE)
-                        entityStateMachine.State = CHASING_PLAYER;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Calculate the hit points to subtract depending on the actor´s state and distance traveled by the bullet
-        /// </summary>
-        /// <param name="bullet"></param>
-        /// <param name="pointsOriginal"></param>
-        /// <returns></returns>
-        private int CalculateHitPoints(Bullet bullet, int pointsOriginal)
-        {
-            //compute the distance traveled by the bullet
-            float distanceTraveled = (bullet.OriginalPosition - bullet.Position).Length();
-            float distanceTraveledFactor = 0f;
-            if (distanceTraveled <= 2)
-            {
-                distanceTraveledFactor = 1f;
-            }
-            else if (distanceTraveled > 2 && distanceTraveled <= 6)
-            {
-                distanceTraveledFactor = 0.8f;
-            }
-            else
-            {
-                distanceTraveledFactor = 0.7f;
-            }
-
-            ////compute the distance to the center of the actor
-            //float distanceToCenter = (Position - bullet.Position).Length();
-            //float distanceToCenterFactor = 0f;
-            //if (distanceToCenter <= (BoundingRadius / 2))
-            //{
-            //    distanceToCenterFactor = 1;
-            //}
-            //else
-            //{
-            //    distanceToCenterFactor = 0.8f;
-            //}
-
-            //compute the factor depending on the actor's state
-            float actorStateFactor = 0f;
-            if (entityStateMachine.State == IDLE)
-            {
-                actorStateFactor = 1.25f;
-            }
-            else if (entityStateMachine.State == PATROLLING)
-            {
-                actorStateFactor = 1.10f;
-            }
-            else
-            {
-                actorStateFactor = 1f;
-            }
-
-            //compute points to rest to the actor's hitpoints
-            pointsOriginal = (int)((float)pointsOriginal * actorStateFactor * distanceTraveledFactor);
-            return pointsOriginal;
-        }
 
         /// <summary>
         /// Create bullets while attacking
         /// </summary>
-        void CreateBullets()
-        {
-            timeToCreateBullet += gameTime.ElapsedGameTime.TotalSeconds;
-            //reload time to every 0.5 seconds
-            if (timeToCreateBullet > 0.5)
-            {
-                Bullet bullet = new Bullet(Map, WeaponType, Position, Direction, this);
-                bullet.IsActive = true;
-                Map.Bullets.Add(bullet);
-
-                timeToCreateBullet = 0;
-            }
-        }
+        
         #endregion
     }
 }

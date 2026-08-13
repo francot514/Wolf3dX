@@ -25,8 +25,9 @@ namespace Nexxt.Engine.Entities
         private Map map;
         private bool collisionWithMap = false;
         private bool collisionWithActor = false;
-        private bool collisionWithMainPlayer = false;
+        public bool collisionWithMainPlayer = false;
         private Actor actorCollision;
+        private Actor player;
         private Actor owner;
 
         private double elapsedTime = 0;
@@ -78,7 +79,7 @@ namespace Nexxt.Engine.Entities
                     Actor actor = map.Actors.Actors[i];
                     
                     //check if the actor is active and is alive
-
+                    if  (actor != null)
                     if (actor.IsActive && (!actor.IsKilled))
                     {
                         if (actor != owner)
@@ -158,7 +159,7 @@ namespace Nexxt.Engine.Entities
                         }
                         else if (collisionWithMainPlayer)
                         {
-                            //TODO: manage the collision with the main player
+                            
                         }
                         entityStateMachine.State = FINISHED;
                     }
