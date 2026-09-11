@@ -46,6 +46,7 @@ namespace Wolf3d.Entities
         const string PISTOL_SOUND = "Sound/Sfx/012";
         const string MACHINEGUN_SOUND = "Sound/Sfx/011";
         const string GATLINGGUN_SOUND = "Sound/Sfx/013";
+        const string DAMAGE_SOUND = "Sound/Sfx/025";
 
         // Possible States
         const string IDLE = "IDLE";
@@ -110,6 +111,10 @@ namespace Wolf3d.Entities
             // current weapon is hardcoded for now
             // TODO: this should be managed by an inventory system.
             currentWeapon = Weapons.Pistol;
+
+            HitPoints = 100;
+            if (currentWeapon == Weapons.Pistol)
+                Ammunition = 10;
         }
         #endregion
 
@@ -119,6 +124,7 @@ namespace Wolf3d.Entities
         {
             // sets the framecount to 1, just to draw the IDLE state weapon (not shooting)
             animationFrameCount = 1;
+            CurrentHitPoints = HitPoints;
 
         }
         void idleTick()
@@ -154,7 +160,7 @@ namespace Wolf3d.Entities
                     if (bullet.collisionWithMainPlayer)
                     {
                         isHit = true;
-                        DoCollision(bullet);
+                        Collision(bullet);
 
                     }
                 }
@@ -174,10 +180,15 @@ namespace Wolf3d.Entities
         void shootingTick()
         {
             time = (float)gameTime.TotalGameTime.TotalSeconds;
-            // obtain the current weapon Index on the spriteSheet 
-            SetWeaponStartFrameIndex();
+            
 
-            CreateBullets();
+            if (Ammunition > 0)
+            {
+
+                // obtain the current weapon Index on the spriteSheet 
+                SetWeaponStartFrameIndex();
+
+                CreateBullets();
 
             // Modify the index to select the current frame of the animation           
             if (currentWeapon == Weapons.GatlingGun | currentWeapon == Weapons.MachineGun)
@@ -218,20 +229,31 @@ namespace Wolf3d.Entities
                     entityStateMachine.State = IDLE;
                 }
             }
+            
+            }
+            else
+            {
+                SetWeaponStartFrameIndex();
+                entityStateMachine.State = IDLE;
+            }
+
         }
 
         public void Collision(Bullet bullet)
         {
             //reduce hit points
             int points = this.CalculateHitPoints(bullet, bullet.HitPoints);
-            HitPoints -= points;
+            
 
-            if (HitPoints <= 0)
+            if (HitPoints > 0)
             {
                 // time to die
-                entityStateMachine.State = DYING;
+                SoundManager.PlaySound(DAMAGE_SOUND, false);
+                HitPoints -= points;
+                CurrentHitPoints = HitPoints;
             }
-
+            else if (HitPoints <= 0)
+                entityStateMachine.State = DYING;
         }
 
         void changeWeaponBegin()
@@ -273,10 +295,10 @@ namespace Wolf3d.Entities
             if (timeToCreateBullet > 0.5)
             {
 
-                Bullet bullet = new Bullet(map, currentWeapon, camera.Position, camera.Direction, null);
+                Bullet bullet = new Bullet(map, currentWeapon, camera.Position, camera.Direction, null, this);
                 bullet.IsActive = true;
                 map.Bullets.Add(bullet);
-
+                Ammunition -= 1;
                 timeToCreateBullet = 0;
             }
         }
@@ -298,6 +320,7 @@ namespace Wolf3d.Entities
             SoundManager.LoadSound(MACHINEGUN_SOUND); // Machinegun Sound
             SoundManager.LoadSound(PISTOL_SOUND); // Pistol Sound
             SoundManager.LoadSound(GATLINGGUN_SOUND); // GatlingGun Sound
+            SoundManager.LoadSound(DAMAGE_SOUND);
             SetWeaponStartFrameIndex(); // sets current weapon start index on the spriteSheet
 
         }
