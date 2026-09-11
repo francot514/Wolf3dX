@@ -43,7 +43,7 @@ namespace Nexxt.Engine.Entities
         #endregion
 
         #region Constructor
-        public Bullet(Map _map, Weapons bulletType, Vector2 position, Vector2 direction, Actor _owner)
+        public Bullet(Map _map, Weapons bulletType, Vector2 position, Vector2 direction, Actor _owner, Actor player)
         {
             this.map = _map;
             this.OriginalPosition = position;
@@ -51,6 +51,7 @@ namespace Nexxt.Engine.Entities
             this.Direction = direction;
             this.WeaponType = bulletType;
             this.owner = _owner;
+            this.player = player;
 
             CreateBulletProperties();
 
@@ -159,7 +160,8 @@ namespace Nexxt.Engine.Entities
                         }
                         else if (collisionWithMainPlayer)
                         {
-                            
+                            if (player != null)
+                                player.DoCollision(this);
                         }
                         entityStateMachine.State = FINISHED;
                     }
@@ -213,11 +215,13 @@ namespace Nexxt.Engine.Entities
             }
 
             //check collisions with Main Player 
-            if (this.owner != null)
+            if (this.owner != null && player != null)
             {
-                if (CheckCollisionWithBoundingRadius(Camera.Position, Camera.Radius))
+                if (//DoCollision(Camera.Position))
+                    CheckCollisionWithBoundingRadius(Camera.Position, Camera.Radius))
                 {
                     collisionWithMainPlayer = true;
+                    actorCollision = player;
                 }
             }
 
@@ -241,7 +245,7 @@ namespace Nexxt.Engine.Entities
         public bool CheckCollisionWithBoundingRadius(Vector2 actorPosition, double actorRadius)
         {
             bool result = false;
-            float factor = 1000.00f;
+            float factor = 10f;
 
             // start positions
             float startActorX = actorPosition.X - (float)(actorRadius / 2);
@@ -266,6 +270,8 @@ namespace Nexxt.Engine.Entities
 
             return result;
         }
+
+        
         #endregion
 
     }
