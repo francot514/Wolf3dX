@@ -6,7 +6,7 @@ Open source Monogame implementation of Wolfestein 3d. It does requiere to have g
    
     -Windows
     MonoGame: 3.4 or higher
-    OpenTK 1.1
+    OpenTK 1.2
     
     -Linux
     OpenGL 3.0
