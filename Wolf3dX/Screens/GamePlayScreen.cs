@@ -26,6 +26,8 @@ using Wolf3d.Helpers;
 using Wolf3d.Entities;
 using Nexxt.Engine.Entities.Actors;
 using Wolf3d.Entities.Enemies;
+using Nexxt.Framework;
+using Microsoft.Xna.Framework.Audio;
 #endregion
 
 namespace Wolf3d.StateManagement
@@ -58,6 +60,8 @@ namespace Wolf3d.StateManagement
         // SpriteBatch Shader (used to improve the sprite drawing process by using the GPU)
         // NOTE: not supported on ZUNE
         Effect spriteBatchShader;
+
+        SoundEffect soundEffect;
 
         Viewport viewport;
 
@@ -149,10 +153,12 @@ namespace Wolf3d.StateManagement
 
 
             // add the Map drawable game component 
-            //realtimeMap = new RealTimeMap(ScreenManager.Game, camera, map);
-            //this.ScreenManager.Game.Components.Add(realtimeMap);
+            realtimeMap = new RealTimeMap(ScreenManager.Game, camera, map);
+            this.ScreenManager.Game.Components.Add(realtimeMap);
 
             map.Actors.LoadContent(content);
+
+            soundEffect = content.Load<SoundEffect>("Sound/Sfx/023");
 
 
             //Once the map object is loaded get the level's soundtrack stored of course in the map file
@@ -211,6 +217,12 @@ namespace Wolf3d.StateManagement
         {
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 
+            if (player != null && player.GameOver)
+            {
+                ScreenManager.AddScreen(new MainMenuScreen(), PlayerIndex.One);
+                ScreenManager.Game.Components.Remove(realtimeMap);
+            }
+
             if (IsActive)
             {
                 //play background music
@@ -264,10 +276,47 @@ namespace Wolf3d.StateManagement
                     currentDoor = null;
                 }
 
+                if (player.IsDying)
+                    player.Reset(map.SpawnPoint);
+
             }
 
+            for (int i = 0; i < map.ObjectDatabase.Count; i++)
+            {
 
+                GameObject gameobj = map.ObjectDatabase[i];
+                if (!gameobj.Name.Contains("GUARD") && gameobj.IsActive && gameobj.IsCollectable)
+                    if (gameobj.DoCollision(camera.Position))
+                    {
+                        if (gameobj.Name.Contains("AM"))
+                            player.Ammunition += 10;
+                        else if (gameobj.Name.Contains("F"))
+                            player.HitPoints += 25;
+                        else if (gameobj.Name.Contains("PL"))
+                            player.HasWeapon[1] = true;
 
+                        gameobj.IsActive = false;
+                        player.Score += 100;
+                        SoundManager.PlaySound(soundEffect.Name, false);
+                    }
+
+                Actor actor = map.ObjectDatabase[i] as Actor;
+                if (actor != null)
+                if (actor.Name.Contains("GUARD") && actor.IsDying && actor.IsKilled)
+                    {
+                        player.Score += actor.Score;
+                        actor.IsKilled = false;
+                    }
+            }
+
+            if (map.Bullets.Count > 0)
+            for (int i = 0; i < map.Bullets.Count; i++)
+            {
+                Bullet bullet = map.Bullets[i] as Bullet;
+                if (bullet.DoCollision(camera.Position))
+                    player.Collision(bullet);
+
+            }
         }
         /// <summary>
         /// Lets the game respond to player input. Unlike the Update method,
@@ -406,7 +455,7 @@ namespace Wolf3d.StateManagement
 
             // update bullets
             map.Bullets.UpdateStates(gameTime, camera);
-
+            player.Bullets.UpdateStates(gameTime, camera);
 
             // Draw the current gun (all the logic here should be managed by an inventory subsystem)
             player.gameTime = gameTime;
@@ -416,7 +465,12 @@ namespace Wolf3d.StateManagement
             hud.Draw(spriteBatch, viewport, gameTime, player.currentWeaponTexture);
 
 
-            spriteBatch.DrawString(gameFont, player.CurrentHitPoints.ToString(), new Vector2(400, 500), Color.White);
+            spriteBatch.DrawString(gameFont, player.CurrentHitPoints.ToString(), new Vector2(420, 550), Color.White);
+            spriteBatch.DrawString(gameFont, player.Score.ToString(), new Vector2(120, 550), Color.White);
+            spriteBatch.DrawString(gameFont, player.Ammunition.ToString(), new Vector2(520, 550), Color.White);
+            spriteBatch.DrawString(gameFont, player.Lives.ToString(), new Vector2(260, 550), Color.White);
+            spriteBatch.DrawString(gameFont, player.camera.Position.X + "," + player.camera.Position.Y, new Vector2(50, 200), Color.White);
+            
 #if DEBUG
 
 #endif

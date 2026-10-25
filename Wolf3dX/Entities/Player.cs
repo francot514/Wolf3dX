@@ -65,6 +65,7 @@ namespace Wolf3d.Entities
         public SpriteSheet weaponSpriteSheet;
         public Weapons currentWeapon;
         public GameTime gameTime;
+        public BulletCollection<Bullet> Bullets; 
 
         int animationFrameCount = 1;
         int weaponLastFrameIndex;
@@ -79,7 +80,9 @@ namespace Wolf3d.Entities
         float wtime;
         bool isHit;
         double timeToCreateBullet = 0;
-
+        public bool[] HasWeapon;
+        public bool GameOver;
+        public int Lives;
         // Textures used to render the current weapon in the HUD 
         Texture2D knifeTexture;
         Texture2D pistolTexture;
@@ -109,10 +112,16 @@ namespace Wolf3d.Entities
             entityStateMachine.AddState(DYING, null, DyingTick, null);
 
             // current weapon is hardcoded for now
-            // TODO: this should be managed by an inventory system.
-            currentWeapon = Weapons.Pistol;
+            HasWeapon = new bool[4];
+            for (int i = 0; i < HasWeapon.Length; i++)
+                HasWeapon[i] = false;
 
+            GameOver = false;
+            currentWeapon = Weapons.Pistol;
+            Bullets = new BulletCollection<Bullet>();
             HitPoints = 100;
+            Lives = 3;
+
             if (currentWeapon == Weapons.Pistol)
                 Ammunition = 10;
         }
@@ -164,7 +173,8 @@ namespace Wolf3d.Entities
 
                     }
                 }
-
+            if (HitPoints <= 0)
+                entityStateMachine.State = DYING;
 
         }
 
@@ -233,8 +243,8 @@ namespace Wolf3d.Entities
             }
             else
             {
-                SetWeaponStartFrameIndex();
-                entityStateMachine.State = IDLE;
+                //SetWeaponStartFrameIndex();
+                //entityStateMachine.State = IDLE;
             }
 
         }
@@ -252,8 +262,25 @@ namespace Wolf3d.Entities
                 HitPoints -= points;
                 CurrentHitPoints = HitPoints;
             }
-            else if (HitPoints <= 0)
-                entityStateMachine.State = DYING;
+            
+        }
+
+        public void Reset(Vector2 position)
+        {
+
+            if (Lives > 0)
+            {
+
+                Position = position;
+                camera.Position = position;
+                HitPoints = 100;
+                Lives -= 1;
+                IsDying = false;
+                entityStateMachine.State = IDLE;
+
+            }
+            else
+                GameOver = true;
         }
 
         void changeWeaponBegin()
@@ -297,7 +324,7 @@ namespace Wolf3d.Entities
 
                 Bullet bullet = new Bullet(map, currentWeapon, camera.Position, camera.Direction, null, this);
                 bullet.IsActive = true;
-                map.Bullets.Add(bullet);
+                Bullets.Add(bullet);
                 Ammunition -= 1;
                 timeToCreateBullet = 0;
             }
@@ -361,6 +388,7 @@ namespace Wolf3d.Entities
             // not shooting and not changing weapon, which means IDLE
             if (entityStateMachine.State != SHOOTING)
             {
+                
                 // use CTRL KEY to shoot
                 if (currentKeyBoardState.IsKeyDown(Keys.RightControl)
                     | currentKeyBoardState.IsKeyDown(Keys.LeftControl))
@@ -369,24 +397,28 @@ namespace Wolf3d.Entities
                     if (entityStateMachine.State != SHOOTING)
                     {
                         timeToShoot = true;
+                        if (entityStateMachine.State == SHOOTING)
+                        {
+                            StartSound();
+                        }
                     }
                 }
             }
             if (entityStateMachine.State != CHANGE_WEAPON & !timeToShoot)
             {
-                if (keyBoardState.IsKeyDown(Keys.D1))
+                if (keyBoardState.IsKeyDown(Keys.D1) && HasWeapon[0])
                 {
                     currentWeapon = Weapons.Knife;
                 }
-                if (keyBoardState.IsKeyDown(Keys.D2))
+                if (keyBoardState.IsKeyDown(Keys.D2) && HasWeapon[1])
                 {
                     currentWeapon = Weapons.Pistol;
                 }
-                if (keyBoardState.IsKeyDown(Keys.D3))
+                if (keyBoardState.IsKeyDown(Keys.D3) && HasWeapon[2])
                 {
                     currentWeapon = Weapons.MachineGun;
                 }
-                if (keyBoardState.IsKeyDown(Keys.D4))
+                if (keyBoardState.IsKeyDown(Keys.D4) && HasWeapon[3])
                 {
                     currentWeapon = Weapons.GatlingGun;
                 }
@@ -402,10 +434,7 @@ namespace Wolf3d.Entities
         {
             // state machine tick (u can override this method if necessary)
             base.Tick();
-            if (entityStateMachine.State == SHOOTING)
-            {
-                StartSound();
-            }
+            
             spriteBatch.Draw(weaponSpriteSheet.Texture, new Rectangle(220, 190, 300, 300),
                                      weaponSpriteSheet.SourceRectangle(weaponFrameIndex), Color.White);
 
