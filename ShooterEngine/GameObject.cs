@@ -44,6 +44,9 @@ namespace Nexxt.Framework
         public GameObject()
         {
             StateBag = new XnaStringDictionary();
+			Position = new Vector2(0,0);
+			BoundingRadius = 0;
+			
         }
     }
 }

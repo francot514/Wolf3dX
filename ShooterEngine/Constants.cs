@@ -17,15 +17,13 @@ namespace Nexxt.Engine.GameObjects
         public const string SECRET_DOOR_SOUND = "Sound/Sfx/034";
 
         
-
-
         public const string NORMAL_DOOR_TEXTURE = "Textures/4";
         public const string EXIT_DOOR_TEXTURE = "Textures/7";
-        public const string GOLD_KEY_DOOR_TEXTURE = "Textures/5"; // Why goodkey door hasn't a GOLD like color??!! it looks the same as silver key door (WHAT THEY WAS THINKING!!!)
+        public const string GOLD_KEY_DOOR_TEXTURE = "Textures/5";
         public const string SILVER_KEY_DOOR_TEXTURE = "Textures/6";
         public const string DOOR_SPRITE_IDENTIFIER = "D";
 
-        public const int NUMBER_DIFFICULTY_LEVELS = 4;
+        public const int NUMBER_DIFFICULTY_LEVELS = 3;
         
         public const double PI = 3.14159;
         public const double TWO_PI = PI * 2;
