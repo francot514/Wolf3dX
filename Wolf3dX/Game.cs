@@ -88,13 +88,8 @@ namespace Wolf3dX
             screenManager.AddScreen(new MainMenuScreen(), PlayerIndex.One);
             
             // Listen for invite notification events.
-            NetworkSession.InviteAccepted += (sender, e)
-                => NetworkSessionComponent.InviteAccepted(screenManager, e);
-
-            // To test the trial mode behavior while developing,
-            // uncomment this line:
-
-            //Guide.SimulateTrialMode = true;
+            //NetworkSession.InviteAccepted += (sender, e)
+                //=> NetworkSessionComponent.InviteAccepted(screenManager, e);
 
             // initialize the SoundManager
             SoundManager.Initialize(this); 
@@ -102,7 +97,17 @@ namespace Wolf3dX
 
 
         #endregion
+		/// <summary>
+        /// Allows the game to run logic such as updating the world,
+        /// checking for collisions, gathering input, and playing audio.
+        /// </summary>
+        /// <param name="gameTime">Provides a snapshot of timing values.</param>
+        protected override void Update(GameTime gameTime)
+        {
+           
 
+            base.Update(gameTime);
+        }
         #region Draw
 
 
